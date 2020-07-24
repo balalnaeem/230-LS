@@ -1,0 +1,27 @@
+body {
+  padding: 1em;
+}
+
+.example {
+  border: dotted 2px blue;
+  padding: .5em;
+}
+
+.example ul {
+  border: dotted 2px red;
+  padding: 1em;
+}
+
+.example li {
+  border: dotted 2px purple;
+  padding: 1em;
+}
+
+.example span {
+  border: dotted 2px green;
+  padding: 0.5em;
+}
+
+div:hover, ul:hover, li:hover, span:hover {
+  border-style: solid;
+}

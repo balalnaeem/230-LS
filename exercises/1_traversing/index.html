@@ -1,0 +1,32 @@
+<div id="1">
+  <h1 id="2">Hello, <em id="3">World</em></h1>
+  <p id="4">
+    Welcome to wonderland. This is an
+    <span id="5">awesome</span> place.
+  </p>
+  <a href="#" id="6"><strong id="7">Enter</strong></a>
+  <div id="8"><p id="9"><a href="#" id="10">Go back</a></p></div>
+</div>
+
+<script>
+  function walk(node, callback) {
+    callback(node);
+
+    for (let i = 0; i < node.childNodes.length; i += 1) {
+      walk(node.childNodes[i], callback);
+    }
+  }
+
+  function childNodes(id) {
+    let ele = document.getElementById(id);
+    let direct = [].slice.call(ele.childNodes);
+    let indirect = 0;
+
+    for (let i = 0; i < direct.length; i += 1) {
+      let grandKids = [].slice.call(direct[i].childNodes);
+      grandKids.forEach(node => walk(node, () => indirect++ ));
+    }
+
+    return [direct.length, indirect];
+  }
+</script>

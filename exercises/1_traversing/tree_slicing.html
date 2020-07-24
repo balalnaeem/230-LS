@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Tree Slicing</title>
+    <script>
+      /*
+        - implement a function called sliceTree
+        - it takes two arguments
+            1. start index (parent node's id)
+            2. end index (inner most child's id)
+        - The function returns an array of tagNames
+
+        RULES:
+        - it is inclusive of end index
+        - end index does not have to be the id of inner most child
+        - only consider element nodes
+        - only elements that are inherit from body are sliceable
+        - if the id attribute of start or end index are not in the DOM, return undefined
+        - if there is not no path connecting start and end, return undefined
+        - I am assuming there is not a situation where start index is bigger than the end index
+
+        AL:
+        - first guard clause: if either start of end elements are not in the DOM
+          return undefined.
+        - second guard clause: if end element is not one of the direct of indirect children
+          of start element, return undefined
+        - which means we need to check if the path is valid
+        - define separate method for that
+        - use walk
+
+      */
+      function sliceTree(start, end) {
+        let endElement = document.getElementById(end);
+        const startElement = document.getElementById(start);
+
+        if (!startElement || !endElement) {
+          return undefined;
+        }
+
+        const slicedTree = [];
+        let currentElement;
+
+        do {
+          currentElement = endElement;
+          slicedTree.unshift(currentElement.tagName);
+          endElement = endElement.parentNode;
+        } while (currentElement.id !== String(start) && endElement.tagName !== 'BODY');
+
+        return (endElement.tagName === 'BODY' && currentElement.id !== String(start) ? undefined : slicedTree);
+      }
+    </script>
+  </head>
+  <body>
+    <article id="1">1
+      <header id="2">2
+        <span id="3">3
+          <a href="#" id="4">4</a>
+        </span>
+      </header>
+      <main id="5">5
+        <section id="6">6
+          <p id="7">7
+            <span id="8">8
+              <strong id="9">9
+                <a href="#" id="10">10</a>
+              </strong>
+            </span>
+          </p>
+        </section>
+        <section id="11">11
+          <p id="12">12
+            <span id="13">13
+              <strong id="14">14
+                <a href="#" id="15">15</a>
+              </strong>
+            </span>
+          </p>
+          <p id="16">16
+            <span id="17">17
+              <strong id="18">18
+                <a href="#" id="19">19</a>
+              </strong>
+            </span>
+            <span id="20">20
+              <strong id="21">21
+                <a href="#" id="22">22</a>
+              </strong>
+            </span>
+          </p>
+        </section>
+      </main>
+      <footer id="23">23
+        <p id="24">24</p>
+      </footer>
+    </article>
+  </body>
+</html>

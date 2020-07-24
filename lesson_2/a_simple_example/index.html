@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <title>title</title>
+    <meta charset="UTF-8">
+    <script>
+      document.addEventListener('DOMContentLoaded', event => {
+        let addButton = document.getElementById('add');
+        let minusButton = document.getElementById('minus');
+        let output = document.getElementById('output');
+        let count = 0;
+
+        addButton.addEventListener('click', event => {
+          count += 1;
+          output.textContent = String(count);
+        });
+
+        minusButton.addEventListener('click', event => {
+          count -= 1;
+          output.textContent = String(count);
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <p>
+      <button id="minus">Minus One</button>
+      <span id="output">0</span>
+      <button id="add">Add One</button>
+    </p>
+  </body>
+</html>

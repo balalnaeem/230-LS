@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Node Swap</title>
+    <script>
+      /*
+        - write a function that takes two element ids as arguments
+        - and swaps the position
+        - function returns true for valid swaps and returns undefined for invalid
+        - What is invalid swap?
+          - if one of the id attribute does not exist.
+          - if one of the id attribute is a child of the other
+
+        - in: two ids
+        - out: true or undefined
+
+        rules:
+        - if swap is valid, return true, undefined otherwise
+
+        Al:
+        - first access the element nodes based from the given ids
+        - then check if exists, if not, return undefined
+
+        - basically both nodes need to have the same parent (that's all we need to check)
+        - so we got parent of each node and see if they are equal
+        - swap the elements
+          - parent.replace(node, targetNode)
+        - return true in the end
+      */
+
+      function nodeSwap(id1, id2) {
+        let ele1 = document.getElementById(id1);
+        let ele2 = document.getElementById(id2);
+        let temp = document.createElement('div');
+
+        if (!ele1 || !ele2) {
+          return undefined;
+        }
+
+        if (ele1.contains(ele2) || ele2.contains(ele1)) {
+          return undefined;
+        }
+
+        ele1.parentElement.insertBefore(temp, ele1);
+        ele2.parentElement.insertBefore(ele1, ele2);
+        temp.parentElement.insertBefore(ele2, temp)
+
+        temp.parentElement.removeChild(temp);
+
+        return true;
+      }
+    </script>
+  </head>
+  <body>
+    <div id="1">1
+      <div id="4">4</div>
+      <div id="5">5
+        <div id="6">6</div>
+      </div>
+    </div>
+    <div id="2">2</div>
+    <div id="3">3
+      <div id="7">7</div>
+      <div id="8">8</div>
+      <div id="9">9</div>
+    </div>
+  </body>
+</html>
