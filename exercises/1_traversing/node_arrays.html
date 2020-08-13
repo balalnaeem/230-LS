@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nodes to Array</title>
+    <script>
+      /*
+
+      */
+
+      let currentNode;
+      let resultArr =[];
+      let tempArr = [];
+
+      function walk(node) {
+        currentNode = node;
+        if (currentNode.tagName === 'BODY') {
+          resultArr.push(currentNode.tagName);
+        } else {
+          tempArr.push(currentNode.tagName);
+        }
+
+        if (currentNode.children.length === 0 && currentNode.tagName === 'BODY') {
+          resultArr.push([]);
+        } else if (currentNode.children.length === 0) {
+          tempArr.push([]);
+        }
+
+        resultArr
+      }
+    </script>
+  </head>
+  <body>
+<!--     <header id="1"></header>
+    <main id="2"></main>
+    <footer id="3"></footer> -->
+  </body>
+</html>

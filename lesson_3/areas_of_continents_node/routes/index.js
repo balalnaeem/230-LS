@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 
 router.get('/areas_of_continents', function(req, res, next) {
-  res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
   var continents = {
     asia: 43820000,
     africa: 30370000,
@@ -12,7 +11,7 @@ router.get('/areas_of_continents', function(req, res, next) {
     europe: 10180000,
     australia: 9008500
   };
-
+  res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
   res.json(continents);
 });
 
