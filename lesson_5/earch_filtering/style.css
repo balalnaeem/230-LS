@@ -1,0 +1,53 @@
+body {
+  font: normal 13px Helvetica, Arial, sans-serif;
+  background: #eee196;
+}
+
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+main {
+  float: right;
+  width: 80%;
+}
+
+#page {
+  background-color: white;
+  width: 1000px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+main ul {
+  padding: 0 20px 20px 0;
+  list-style: none;
+}
+
+main ul li {
+  padding: 15px 20px;
+}
+
+main ul li:hover {
+  background: #99f099;
+}
+main li + li {
+  border-top: 1px solid #ececec;
+}
+
+aside {
+  padding: 60px 20px 0 30px;
+}
+
+aside ul {
+  padding: 0;
+  list-style: none;
+}
+
+
+
+
+
+
