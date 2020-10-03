@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Form Submission</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <form id="form">
+      <p><label>Title: <input type="text" name="title"></label></p>
+      <p><label>Author: <input type="text" name="author"></label></p>
+      <p><button type="submit">Submit</button></p>
+    </form>
+
+    <script>
+      let form = document.getElementById('form');
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+
+        let keysAndValues = [];
+
+        for (let i = 0; i < form.elements.length; i += 1) {
+          let element = form.elements[i];
+          let key;
+          let value;
+
+          if (element.type !== 'submit') {
+            key = encodeURIComponent(element.name);
+            value = encodeURIComponent(element.value);
+            keysAndValues.push(`${key}=${value}`);
+          }
+        }
+
+        let data = keysAndValues.join('&');
+
+        let request = new XMLHttpRequest();
+        request.open('POST', 'https://ls-230-book-catalog.herokuapp.com/books');
+        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        request.addEventListener('load', e => {
+          if (request.status === 201) {
+            console.log('This book was added to the catalog:' + request.response);
+          }
+        });
+
+        request.send(data);
+      });
+    </script>
+  </body>
+</html>
+
+
+
+

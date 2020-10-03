@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Loading JSON</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>Loading JSON data from Github</h1>
+    <div id="data"></div>
+
+    <script>
+      let request = new XMLHttpRequest();
+      request.open('GET', 'hts://api.github.com/repos/rails/rails');
+
+      request.addEventListener('load', e => {
+        let data = JSON.parse(request.response);
+        console.log(request.status);
+        console.log(data.open_issues);
+      });
+
+      request.addEventListener('error', e => {
+        console.log('The request could not be completed.')
+      });
+
+      request.send();
+    </script>
+  </body>
+</html>
