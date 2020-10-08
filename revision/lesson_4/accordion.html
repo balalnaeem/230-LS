@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Toggle Accordion</title>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        background: maroon;
+      }
+
+      main {
+        width: 400px;
+        background: white;
+        margin: 100px auto;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      a {
+        margin-top: 20px;
+        display: inline-block;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+            crossorigin="anonymous">
+    </script>
+    <script>
+      $(domReady => {
+        $('form').on('submit', e => {
+          e.preventDefault();
+          let letter = $('input').val();
+
+          $(document).off('keypress').on('keypress', e => {
+            if (e.key !== letter) {
+              return;
+            }
+
+            $('a').trigger('click');
+          });
+        });
+
+        $('a').click(e => $('#accordion').slideToggle());
+      });
+    </script>
+  </head>
+  <body>
+    <main>
+      <form action="#">
+        <input type="text" maxlength="1" />
+        <input type="submit" />
+      </form>
+      <a href="#">Toggle</a>
+
+      <div id="accordion">
+        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consectetur animi rem quidem. Fugiat, recusandae optio nesciunt cumque obcaecati voluptate eaque ea expedita vero error amet reprehenderit ducimus corporis tempore est? Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptate, consequuntur a doloremque in animi velit ex voluptas quod libero voluptatem nobis quas iusto nihil voluptatibus et enim obcaecati officiis repellendus.</p>
+      </div>
+    </main>
+  </body>
+</html>

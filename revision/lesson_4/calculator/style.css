@@ -1,0 +1,41 @@
+body {
+  background-color: maroon;
+}
+
+main {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 400px;
+  height: 150px;
+  margin: 50px auto;
+}
+
+h1 {
+  color: green;
+}
+
+input[type=number] {
+  width: 70px;
+  margin: 10px;
+}
+
+input[type=submit] {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 25px;
+  border-radius: 5px;
+  background-color: #1c89ff;
+  border: solid 1px transparent;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all .1s ease-in-out;
+  &:hover {
+    background-color: transparent;
+    border-color: #fff;
+    transition: all .1s ease-in-out;
+  }
+}

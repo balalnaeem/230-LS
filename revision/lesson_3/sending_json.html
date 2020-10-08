@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sending JSON</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>Sending JSON via XHR</h1>
+
+    <script>
+      let request = new XMLHttpRequest();
+      request.open('POST','https://ls-230-web-store-demo.herokuapp.com/v1/products');
+      request.setRequestHeader('Content-Type', 'application/json');
+      request.setRequestHeader('Authorization', 'token AUTH_TOKEN');
+
+      let productData = { name: 'Dollar Pen', sku: 'dolpen', price: 100 };
+      let json = JSON.stringify(productData);
+
+      request.addEventListener('load', e => {
+        console.log('Status code: ' + request.status);
+      });
+
+      request.send(json);
+    </script>
+  </body>
+</html>
