@@ -156,6 +156,59 @@ footer li a.instagram { background-position: 0 -138px; }
   margin: 0 0 20px 0;
 }
 
+.modal_layer {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, .3);
+}
+
+.modal {
+  display: none;
+  background: #fff;
+  position: absolute;
+  text-align: left;
+  top: 100px;
+  left: 50%;
+  z-index: 3;
+  width: 660px;
+  padding: 125px 70px 70px 70px;
+  margin: 0 0 0 -400px;
+}
+
+#team .modal p {
+  padding: 0;
+  font-size: 20px;
+}
+
+#team .modal img {
+  display: inline-block;
+  width: 96px;
+  margin: 0 30px 20px 0;
+  vertical-align: middle;
+}
+
+#team .modal h3 {
+  display: inline-block;
+  vertical-align: middle;
+  font-weight: normal;
+  font-size: 24px;
+}
+
+.modal a.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  width: 30px;
+  background: transparent url("images/icon_close.png") 0 0 no-repeat;
+  text-indent: -9000px;
+}
+
 @media (max-width: 875px) {
   #team li {
     width: 48%;
@@ -201,6 +254,14 @@ footer li a.instagram { background-position: 0 -138px; }
 
   #projects article p {
     padding: 0 30px;
+  }
+
+  .modal {
+    left: 0;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 50px 30px;
   }
 }
 
