@@ -33,5 +33,3 @@ function shuffle(deck) {
     return Math.floor(Math.random() * deck.length);
   }
 }
-
-console.log(createDeck());
