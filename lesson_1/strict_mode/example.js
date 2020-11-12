@@ -33,3 +33,11 @@ function shuffle(deck) {
     return Math.floor(Math.random() * deck.length);
   }
 }
+
+function(string) {
+  return string;
+}
+
+if (true) { return; }
+
+
