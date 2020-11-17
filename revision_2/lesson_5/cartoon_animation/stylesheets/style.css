@@ -1,0 +1,81 @@
+main {
+  background-image: url('https://imgs.xkcd.com/comics/higgs_boson.png');
+  width: 705px;
+  height: 285px;
+  margin: 0 auto;
+  position: relative;
+}
+
+#button {
+  width: 705px;
+  margin: 0 auto;
+  padding-top: 20px;
+}
+
+[id^=blind] {
+  background: #fff;
+  position: absolute;
+}
+
+#blind-1 {
+  width: 130px;
+  height: 80px;
+  top: 5px;
+  left: 3px;
+}
+
+#blind-2 {
+  width: 190px;
+  height: 70px;
+  top: 50px;
+  left: 22px;
+}
+
+#blind-3 {
+  width: 145px;
+  height: 100px;
+  top: 5px;
+  left: 218px;
+}
+
+#blind-4 {
+  left: 290px;
+  top: 77px;
+  width: 96px;
+  height: 46px;
+}
+
+#blind-5 {
+  left: 402px;
+  top: 8px;
+  width: 102px;
+  height: 137px;
+}
+
+#blind-6 {
+  left: 441px;
+  top: 67px;
+  width: 76px;
+  height: 81px;
+}
+
+#blind-7 {
+  left: 535px;
+  top: 6px;
+  width: 139px;
+  height: 79px;
+}
+
+#blind-8 {
+  left: 609px;
+  top: 51px;
+  width: 49px;
+  height: 30px;
+}
+
+#blind-9 {
+  left: 561px;
+  top: 79px;
+  width: 137px;
+  height: 42px;
+}
