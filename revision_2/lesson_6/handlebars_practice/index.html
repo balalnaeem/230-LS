@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Handlebars Practice</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+  <script src="script.js"></script>
+</head>
+<body>
+  <script id='tag' type='text/x-handlebars'>
+    <strong>{{this}}</strong>
+  </script>
+  <script id="post" type='text/x-handlebars'>
+    {{#each posts}}
+    <article>
+      <h1>{{title}}</h1>
+      <p><time>Posted on {{published}}</time></p>
+      {{{body}}}
+      {{#if tags}}
+      <p>Tags:
+      {{#each tags}}
+      {{>tag}}
+      {{/each}}
+      </p>
+      {{else}}
+      <p>Not tagged</p>
+      {{/if}}
+    </article>
+    {{/each}}
+  </script>
+</body>
+</html>
