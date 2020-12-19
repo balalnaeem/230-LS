@@ -1,0 +1,51 @@
+body {
+	background: tomato;
+	color: black;
+	padding: 0;
+	margin: 0;
+}
+
+main {
+	width: 600px;
+	height: 300px;
+	margin: 150px auto;
+}
+
+#timer {
+	font-size: 80px;
+	font-weight: bold;
+	box-sizing: border-box;
+	text-align: center;
+	padding: 50px 10px 0 10px;
+	box-sizing: border-box;
+}
+
+#hours, 
+#minutes,
+#seconds,
+#centi-seconds {
+	display: inline-block;
+	width: 15%;
+	box-sizing: border-box;
+}
+
+#buttons {
+	text-align: center;
+	margin: 10px;
+	cursor: pointer;
+}
+
+#start,
+#stop,
+#reset {
+	margin: 10px;
+	border: 1px solid white;
+	padding: 5px 20px;
+	width: 70px;
+}
+
+#start:hover,
+#stop:hover,
+#reset:hover {
+}
+
