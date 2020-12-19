@@ -1,6 +1,6 @@
 const App = (function() {
 	const $timer = $('#timer');
-	
+
 	const $centis = $timer.find('#centi-seconds');
 	const $seconds = $timer.find('#seconds');
 	const $minutes = $timer.find('#minutes');
