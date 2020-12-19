@@ -96,7 +96,7 @@ const App = (function() {
 				clearInterval(counterId);
 			}
 
-			this.initialize();
+			this.setup();
 		},
 
 		bindEvents() {
@@ -105,7 +105,7 @@ const App = (function() {
 			$reset.on('click', this.reset.bind(this));
 		},
 
-		initialize() {
+		setup() {
 			$start.show();
 			$stop.hide();
 
@@ -121,7 +121,7 @@ const App = (function() {
 		},
 
 		init() {
-			this.initialize();
+			this.setup();
 			this.bindEvents();
 		},
 	};
