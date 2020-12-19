@@ -127,4 +127,5 @@ const App = (function() {
 	};
 })();
 
+// setup the stop watch
 App.init();
