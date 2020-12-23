@@ -1,5 +1,3 @@
-const $menu = $('#menu-bar');
-
 function toggleBold(e) {
   e.preventDefault();
   document.execCommand('bold', false, null);
