@@ -48,3 +48,8 @@ i:hover {
   outline: none;
 }
 
+.selected {
+  background: white;
+  border-radius: 5px;
+}
+
