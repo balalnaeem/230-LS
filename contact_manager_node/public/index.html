@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Contact Manager</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/javascripts/jquery.js"></script>
+  <script src="/javascripts/handlebars.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Contact Manager App</h1>
+    <h3>Made with JavaScript, Jquery and Handlebars.</h3>
+    <p><em>Would not be possible without Launch School</em> &hearts;</p>
+  </header>
+
+  <main>
+    <div>
+      <a href="#" class="add-contact">Add Contact</a>
+      <input type="text" name="search" id="search" placeholder="Search">
+    </div>
+
+    <div class="empty">
+      <h2>There are no contacts.</h2>
+      <a href="#" class="add-contact">Add Contact</a>
+    </div>
+
+    <div class="contacts">
+      <ul id="contacts-list">
+      </ul>
+    </div>
+
+    <button id="show-all">Show All</button>
+  </main>
+
+  <aside>
+    <form action="#" method="post">
+      <fieldset>
+        <input type="hidden" data-mode="edit" value="">
+        <div>
+          <label for="full_name">Full Name:</label>
+          <input type="text" name="full_name" id="full_name" required>
+        </div>
+        <div>
+          <label for="phone_number">Phone Number:</label>
+          <input type="tel" name="phone_number" id="phone_number">
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <input type="email" name="email" id="email">
+        </div>
+        <div>
+          <label for="tags">Tags:</label>
+          <input type="text" name="tags" id="tags" pattern="[A-Za-z,]*" placeholder="commma separated">
+        </div>
+        <button class="cancel">Cancel</button>
+        <button type="submit">Submit</button>
+      </fieldset>
+    </form>
+  </aside>
+
+  <script id="contacts" type="text/x-handlebars">
+    {{#each contacts}}
+    {{> contact}}
+    {{/each}}
+  </script>
+
+  <script id="contact" type="text/x-handlebars" data-type="partial">
+    <li data-id="{{id}}">
+      <h3>{{full_name}}</h3>
+      <strong>Phone Number:</strong>
+      <p>{{phone_number}}</p>
+      <strong>Email:</strong>
+      <p>{{email}}</p>
+      <strong>Tags:</strong>
+      <p>
+        {{#if tags}}
+          {{#each tags}}
+          {{> tag}}
+          {{/each}}
+        {{/if}}
+      </p>
+      <button id="delete-contact">Delete</button>
+      <button id="edit-contact">Edit</button>
+     </li> 
+  </script>
+
+  <script id="tag" type="text/x-handlebars" data-type="partial">
+    <a href="#" class="tag-link">{{this}}</a>
+  </script>
+
+  <script src="/javascripts/script.js"></script>
+</body>
+</html>

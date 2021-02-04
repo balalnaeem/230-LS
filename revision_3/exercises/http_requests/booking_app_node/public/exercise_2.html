@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exercise 4</title>
+  <link rel="stylesheet" href="style_2.css">
+</head>
+<body>
+  <button class="add-schedule">Add more schedules</button>
+  <form action="/api/staff_members">
+    <fieldset>
+      <legend>Schedule <span>1</span></legend>
+      <label for="">
+        Staff Name:
+        <select name="staff_id">
+        </select>
+      </label>
+      <label for="">
+        Date: 
+        <input type="text" name="date" placeholder="mm-dd-yy">
+      </label>
+      <label for="">
+        Time: 
+        <input type="text" name="time" placeholder="hh:mm">
+      </label>
+    </fieldset>
+  </form>
+
+  <button class="submit">Submit</button>
+  <script src="script_2.js"></script>
+</body>
+</html>

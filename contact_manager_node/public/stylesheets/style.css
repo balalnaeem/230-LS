@@ -1,0 +1,132 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  background: slateblue;
+  color: white;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+header h1 {
+  padding: 0.5rem;
+}
+
+header p {
+  padding: 0.2rem;
+}
+
+main {
+  background: lightgray;
+  width: 75%;
+  margin: 0 auto;
+  padding: 1rem 4rem;
+}
+
+.add-contact {
+  display: inline-block;
+  padding: 0.3em 1em;
+  text-decoration: none;
+  color: black;
+  border: solid 2px black;
+  border-radius: 5px;
+  transition: .4s;
+}
+
+.add-contact:hover {
+  background: white;
+  color: black;
+}
+
+input[name=search] {
+  height: 30px;
+  padding: 0.1rem 0.5rem;
+  border-radius: 5px;
+  float: right;
+}
+
+.empty {
+  margin: 0 auto;
+  width: 80%;
+  text-align: center;
+  display: none;
+}
+
+.empty h2 {
+  margin: 2rem 0 1rem 0;
+}
+
+.contacts {
+  margin-top: 2rem;
+}
+
+#contacts-list li {
+  list-style: none;
+  display: inline-block;
+  padding: 0 2rem 2rem 0;
+  width: 10rem;
+  margin: 0 auto;
+}
+
+#contacts-list li h3 {
+  padding-bottom: 1rem;
+  font-family: arial;
+}
+
+#contacts-list li p {
+  padding-bottom: 0.5rem;
+  height: 1rem;
+}
+
+#contacts-list li button {
+  padding: 0 0.5rem;
+}
+
+aside {
+  display: none;
+  width: 75%;
+  margin: 0 auto;
+}
+
+form fieldset {
+  padding: 1rem;
+  text-align: center;
+  background: lavender;
+}
+
+fieldset div {
+  margin: 1rem;
+}
+
+form label {
+  display: inline-block;
+  padding-right: 1rem;
+  font-size: 1.2rem;
+  width: 12rem;
+  height: 1.5rem;
+  text-align: right;
+  vertical-align: top;
+}
+
+fieldset input {
+  display: inline-block;
+  height: 1.5rem;
+  width: 15rem;
+  line-height: 1.5rem;
+  vertical-align: top;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding-left: 0.5rem;
+}
+
+fieldset button {
+  width: 5rem;
+  height: 2rem;
+  margin: 2rem;
+}
+
+#show-all {
+  display: none;
+}

@@ -1,0 +1,22 @@
+body {
+  background: moccasin;
+}
+
+main {
+  background: lightyellow;
+  width: 700px;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+ul {
+  font-size: 20px;
+}
+
+ul li {
+  cursor: pointer;
+}
+
+li ul {
+  display: none;
+}

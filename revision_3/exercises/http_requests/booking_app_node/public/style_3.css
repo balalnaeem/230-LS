@@ -1,0 +1,27 @@
+body {
+  background: aquamarine;
+}
+
+main {
+  background: lightcyan;
+  width: 700px;
+  margin: 0 auto;
+  padding: 20px 10px;
+}
+
+label {
+  display: block;
+  margin: 5px 0;
+}
+
+#student_form {
+  background: PaleTurquoise;
+  padding: 10px;
+  margin: 20px 0;
+  display: none;
+}
+
+#student_form fieldset {
+  border: none;
+}
+
