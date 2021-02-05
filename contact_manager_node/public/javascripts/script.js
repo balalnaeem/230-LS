@@ -1,6 +1,4 @@
-let App;
-
-(function() {
+const  App = (function() {
   const $main = $('main');
   const $empty = $main.find('.empty');
   const $list = $main.find('#contacts-list');
@@ -31,6 +29,11 @@ let App;
       };
     },
 
+    showContacts: function() {
+      $aside.hide();
+      $main.show();
+    },
+
     findTarget: function(id) {
       return $list.find(`li[data-id=${id}]`);
     },
@@ -39,6 +42,9 @@ let App;
       contacts.length === 0 ? $empty.show() : $empty.hide();
     },
 
+    getContact: function(id) {
+      return contacts.filter(contact => contact.id === id)[0];
+    },
     populateForm: function(edited) {
       $form.find('#full_name').val(edited.full_name);
       $form.find('#phone_number').val(edited.phone_number);
@@ -83,8 +89,8 @@ let App;
     }
   };
 
-  App = {
-    renderHomePage: function() {
+  const Requests = {
+    loadContacts: function() {
       let request = new XMLHttpRequest();
       request.open('GET', 'http://localhost:3000/api/contacts');
 
@@ -99,26 +105,7 @@ let App;
       request.send();
     },
 
-    showForm: function(e) {
-      e.preventDefault();
-
-      $main.hide();
-      $aside.show();
-    },
-
-    showContacts: function() {
-      $aside.hide();
-      $main.show();
-    },
-
-    cancelForm: function(e) {
-      e.preventDefault();
-
-      this.showContacts();
-      $form.get(0).reset();
-    },
-
-    processCreateRequest(data) {
+    processCreateRequest: function(data) {
       if (editMode) {
         let id = +$form.find('[data-mode=edit]').val();
         this.processEditRequest(data, id);
@@ -134,24 +121,12 @@ let App;
         contact = this.helpers.transformTags(contact);
         contacts.push(contact);
         $list.append(templates.contact(contact));
-        this.showContacts();
+        this.helpers.showContacts();
         $form.get(0).reset();
         this.helpers.toggleEmpty();
       });
 
       request.send(JSON.stringify(data));
-    },
-
-    createContact: function(e) {
-      e.preventDefault();
-
-      let data = this.helpers.getDataObj($form);
-      if (!this.helpers.validTags(data.tags)) {
-        alert('Duplicate tags are not allowed');
-        return;
-      }
-
-      this.processCreateRequest(data);
     },
 
     processDeleteRequest: function(id) {
@@ -168,17 +143,7 @@ let App;
       request.send();
     },
 
-    deleteContact: function(e) {
-      e.preventDefault();
-
-      let answer = confirm('Are you sure?');
-      if (!answer) return;
-
-      let id = +$(e.target).parent().attr('data-id');
-      this.processDeleteRequest(id);
-    },
-
-    processEditRequest(data, id) {
+    processEditRequest: function(data, id) {
       data.id = id;
 
       let request = new XMLHttpRequest();
@@ -190,7 +155,7 @@ let App;
         contact = this.helpers.transformTags(contact);
         this.helpers.updateContacts(contact);
         this.helpers.findTarget(id).replaceWith(templates.contact(contact));
-        this.showContacts();
+        this.helpers.showContacts();
         $form.get(0).reset();
         editMode = false;
       });
@@ -198,13 +163,53 @@ let App;
       request.send(JSON.stringify(data));
     },
 
-    getContact: function(id) {
-      return contacts.filter(contact => contact.id === id)[0];
+    init: function(helperObj) {
+      this.helpers = helperObj;
+      return this;
+    },
+  };
+
+  return {
+    showForm: function(e) {
+      e.preventDefault();
+
+      $main.hide();
+      $aside.show();
+    },
+
+    cancelForm: function(e) {
+      e.preventDefault();
+
+      this.helpers.showContacts();
+      $form.get(0).reset();
+    },
+
+    createContact: function(e) {
+      e.preventDefault();
+
+      let data = this.helpers.getDataObj($form);
+      if (!this.helpers.validTags(data.tags)) {
+        alert('Duplicate tags are not allowed');
+        return;
+      }
+
+      this.requests.processCreateRequest(data);
+    },
+
+
+    deleteContact: function(e) {
+      e.preventDefault();
+
+      let answer = confirm('Are you sure?');
+      if (!answer) return;
+
+      let id = +$(e.target).parent().attr('data-id');
+      this.requests.processDeleteRequest(id);
     },
 
     editContact: function(e) {
       let id = +$(e.target).parent().attr('data-id');
-      let contactDetails = this.getContact(id);
+      let contactDetails = this.helpers.getContact(id);
 
       editMode = true;
       this.helpers.populateForm(contactDetails);
@@ -248,18 +253,20 @@ let App;
     bindEvents: function() {
       $('.add-contact').on('click', this.showForm.bind(this));
       $('.cancel').on('click', this.cancelForm.bind(this));
+      $('input[name=search]').on('input', this.filterSearch);
       $form.on('submit', this.createContact.bind(this));
       $list.on('click', '#delete-contact', this.deleteContact.bind(this));
       $list.on('click', '#edit-contact', this.editContact.bind(this));
       $list.on('click', '.tag-link', this.filterTags.bind(this));
       $main.on('click', '#show-all', this.showAll.bind(this));
-      $('input[name=search]').on('input', this.filterSearch);
     },
 
     init: function() {
       this.helpers = Helpers.init();
+      this.requests = Requests.init(this.helpers);
+      
       this.filterSearch = this.helpers.debounce(this.filterSearch.bind(this), 250);
-      this.renderHomePage();
+      this.requests.loadContacts();
       this.bindEvents();
     }
   };
