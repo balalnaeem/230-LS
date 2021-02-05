@@ -21,67 +21,79 @@ let App;
     Handlebars.registerPartial($partial.attr('id'), $partial.html());
   });
 
-  function toggleEmpty() {
-    contacts.length === 0 ? $empty.show() : $empty.hide();
-  }
+  const Helpers = {
+    debounce: function(func, delay) {
+      let timeout;
 
-  function transformTags(contact) {
-    if (contact.tags !== '') {
-      contact.tags = contact.tags.split(',');
-    }
+      return function(...args) {
+        if (timeout) { clearTimeout(timeout) };
+        timeout = setTimeout(() => func.apply(null, args), delay);
+      };
+    },
 
-    return contact;
-  }
+    findTarget: function(id) {
+      return $list.find(`li[data-id=${id}]`);
+    },
 
-  function getDataObj($form) {
-    let o = {};
+    toggleEmpty: function() {
+      contacts.length === 0 ? $empty.show() : $empty.hide();
+    },
 
-    $form.serializeArray().forEach(obj => {
-      o[obj.name] = obj.value;
-    });
+    populateForm: function(edited) {
+      $form.find('#full_name').val(edited.full_name);
+      $form.find('#phone_number').val(edited.phone_number);
+      $form.find('#email').val(edited.email);
+      $form.find('#tags').val(edited.tags);
+    },
 
-    return o;
-  }
+    updateContacts: function(updatedContact) {
+      contacts.forEach((contact, idx) => {
+        if (updatedContact.id === contact.id) {
+          contacts[idx] = updatedContact;
+        }
+      });
+    },
 
-  function updateContacts(updatedContact) {
-    contacts.forEach((contact, idx) => {
-      if (updatedContact.id === contact.id) {
-        contacts[idx] = updatedContact;
+    getDataObj: function($form) {
+      let o = {};
+
+      $form.serializeArray().forEach(obj => {
+        o[obj.name] = obj.value;
+      });
+
+      return o;
+    },
+
+    transformTags: function(contact) {
+      if (contact.tags !== '') {
+        contact.tags = contact.tags.split(',');
       }
-    });
-  }
 
-  function populateForm(edited) {
-    $form.find('#full_name').val(edited.full_name);
-    $form.find('#phone_number').val(edited.phone_number);
-    $form.find('#email').val(edited.email);
-    $form.find('#tags').val(edited.tags);
-  }
+      return contact;
+    },
 
-  function findTargetEle(id) {
-    return $list.find(`li[data-id=${id}]`);
-  }
+    validTags: function(tags) {
+      tags = tags.split(',');
+      let uniqTags = tags.filter((tag, idx, self) => self.indexOf(tag) === idx);
+      return tags.length === uniqTags.length;
+    },
 
-  function debounce(func, delay) {
-    let timeout;
-
-    return function(...args) {
-      if (timeout) { clearTimeout(timeout) };
-      timeout = setTimeout(() => func.apply(null, args), delay);
-    };
-  }
+    init: function() {
+      return this;
+    }
+  };
 
   App = {
     renderHomePage: function() {
       let request = new XMLHttpRequest();
       request.open('GET', 'http://localhost:3000/api/contacts');
 
-      request.addEventListener('load', function(e) {
+      request.addEventListener('load', (e) => {
         let res = JSON.parse(request.response);
-        res = res.map(contact => transformTags(contact));
+        res = res.map(contact => this.helpers.transformTags(contact));
         contacts = res;
         $list.append(templates.contacts({contacts: res}));
-        toggleEmpty();
+        this.helpers.toggleEmpty();
       });
 
       request.send();
@@ -116,16 +128,15 @@ let App;
       let request = new XMLHttpRequest();
       request.open('POST', 'http://localhost:3000/api/contacts/');
       request.setRequestHeader('Content-Type', 'application/json');
-      let self = this;
 
-      request.addEventListener('load', function(e) {
+      request.addEventListener('load', (e) => {
         let contact = JSON.parse(request.response);
-        contact = transformTags(contact);
+        contact = this.helpers.transformTags(contact);
         contacts.push(contact);
         $list.append(templates.contact(contact));
-        self.showContacts();
+        this.showContacts();
         $form.get(0).reset();
-        toggleEmpty();
+        this.helpers.toggleEmpty();
       });
 
       request.send(JSON.stringify(data));
@@ -134,18 +145,24 @@ let App;
     createContact: function(e) {
       e.preventDefault();
 
-      let data = getDataObj($form);
+      let data = this.helpers.getDataObj($form);
+      if (!this.helpers.validTags(data.tags)) {
+        alert('Duplicate tags are not allowed');
+        return;
+      }
+
       this.processCreateRequest(data);
     },
 
     processDeleteRequest: function(id) {
       let request = new XMLHttpRequest();
+
       request.open('DELETE', 'http://localhost:3000/api/contacts/' + id);
 
-      request.addEventListener('load', function() {
-        findTargetEle(id).remove();
+      request.addEventListener('load', () => {
+        this.helpers.findTarget(id).remove();
         contacts = contacts.filter(contact => contact.id !== id);
-        toggleEmpty();
+        this.helpers.toggleEmpty();
       });
 
       request.send();
@@ -170,9 +187,9 @@ let App;
 
       request.addEventListener('load', e => {
         let contact = JSON.parse(request.response);
-        contact = transformTags(contact);
-        updateContacts(contact);
-        findTargetEle(id).replaceWith(templates.contact(contact));
+        contact = this.helpers.transformTags(contact);
+        this.helpers.updateContacts(contact);
+        this.helpers.findTarget(id).replaceWith(templates.contact(contact));
         this.showContacts();
         $form.get(0).reset();
         editMode = false;
@@ -190,7 +207,7 @@ let App;
       let contactDetails = this.getContact(id);
 
       editMode = true;
-      populateForm(contactDetails);
+      this.helpers.populateForm(contactDetails);
       this.showForm(e);
       $form.find('[data-mode=edit]').val(id);
     },
@@ -201,7 +218,7 @@ let App;
 
       contacts.forEach(contact => {
         if(!contact.tags.includes(tag)) {
-          findTargetEle(contact.id).hide();
+          this.helpers.findTarget(contact.id).hide();
         }
       });
 
@@ -221,9 +238,9 @@ let App;
       contacts.forEach(contact => {
         let name = contact.full_name.toLowerCase();
         if (!name.startsWith(query)) {
-          findTargetEle(contact.id).hide();
+          this.helpers.findTarget(contact.id).hide();
         } else {
-          findTargetEle(contact.id).show();
+          this.helpers.findTarget(contact.id).show();
         }
       });
     },
@@ -240,7 +257,8 @@ let App;
     },
 
     init: function() {
-      this.filterSearch = debounce(this.filterSearch.bind(this), 250);
+      this.helpers = Helpers.init();
+      this.filterSearch = this.helpers.debounce(this.filterSearch.bind(this), 250);
       this.renderHomePage();
       this.bindEvents();
     }
