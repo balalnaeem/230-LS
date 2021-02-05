@@ -1,25 +1,11 @@
 const  App = (function() {
   const $main = $('main');
+  const $aside = $('aside');
   const $empty = $main.find('.empty');
   const $list = $main.find('#contacts-list');
-  const $aside = $('aside');
   const $form = $aside.find('form');
 
-  let contacts = [];
-  let templates = {};
-  let editMode = false;
-
-  $('script[type="text/x-handlebars"]').each(function() {
-    let $templ = $(this);
-    templates[$templ.attr('id')] = Handlebars.compile($templ.html());
-  });
-
-  $('script[data-type=partial]').each(function() {
-    let $partial = $(this);
-    Handlebars.registerPartial($partial.attr('id'), $partial.html());
-  });
-
-  const Helpers = {
+  const Helper = {
     debounce: function(func, delay) {
       let timeout;
 
@@ -39,11 +25,11 @@ const  App = (function() {
     },
 
     toggleEmpty: function() {
-      contacts.length === 0 ? $empty.show() : $empty.hide();
+      this.contacts.length === 0 ? $empty.show() : $empty.hide();
     },
 
     getContact: function(id) {
-      return contacts.filter(contact => contact.id === id)[0];
+      return this.contacts.filter(contact => contact.id === id)[0];
     },
     populateForm: function(edited) {
       $form.find('#full_name').val(edited.full_name);
@@ -53,9 +39,9 @@ const  App = (function() {
     },
 
     updateContacts: function(updatedContact) {
-      contacts.forEach((contact, idx) => {
+      this.contacts.forEach((contact, idx) => {
         if (updatedContact.id === contact.id) {
-          contacts[idx] = updatedContact;
+          this.contacts[idx] = updatedContact;
         }
       });
     },
@@ -84,7 +70,27 @@ const  App = (function() {
       return tags.length === uniqTags.length;
     },
 
+    cacheTemplates: function() {
+      let self = this;
+      $('script[type="text/x-handlebars"]').each(function() {
+        let $templ = $(this);
+        self.templates[$templ.attr('id')] = Handlebars.compile($templ.html());
+      });
+    },
+
+    registerPartials: function() {
+      $('script[data-type=partial]').each(function() {
+        let $partial = $(this);
+        Handlebars.registerPartial($partial.attr('id'), $partial.html());
+      });
+    },
+
     init: function() {
+      this.contacts = [];
+      this.templates = {};
+      this.editMode = false;
+      this.cacheTemplates();
+      this.registerPartials();
       return this;
     }
   };
@@ -96,17 +102,17 @@ const  App = (function() {
 
       request.addEventListener('load', (e) => {
         let res = JSON.parse(request.response);
-        res = res.map(contact => this.helpers.transformTags(contact));
-        contacts = res;
-        $list.append(templates.contacts({contacts: res}));
-        this.helpers.toggleEmpty();
+        res = res.map(contact => this.helper.transformTags(contact));
+        this.helper.contacts = res;
+        $list.append(this.helper.templates.contacts({contacts: res}));
+        this.helper.toggleEmpty();
       });
 
       request.send();
     },
 
     processCreateRequest: function(data) {
-      if (editMode) {
+      if (this.helper.editMode) {
         let id = +$form.find('[data-mode=edit]').val();
         this.processEditRequest(data, id);
         return;
@@ -118,12 +124,12 @@ const  App = (function() {
 
       request.addEventListener('load', (e) => {
         let contact = JSON.parse(request.response);
-        contact = this.helpers.transformTags(contact);
-        contacts.push(contact);
-        $list.append(templates.contact(contact));
-        this.helpers.showContacts();
+        contact = this.helper.transformTags(contact);
+        this.helper.contacts.push(contact);
+        $list.append(this.helper.templates.contact(contact));
+        this.helper.showContacts();
         $form.get(0).reset();
-        this.helpers.toggleEmpty();
+        this.helper.toggleEmpty();
       });
 
       request.send(JSON.stringify(data));
@@ -135,9 +141,9 @@ const  App = (function() {
       request.open('DELETE', 'http://localhost:3000/api/contacts/' + id);
 
       request.addEventListener('load', () => {
-        this.helpers.findTarget(id).remove();
-        contacts = contacts.filter(contact => contact.id !== id);
-        this.helpers.toggleEmpty();
+        this.helper.findTarget(id).remove();
+        this.helper.contacts = this.helper.contacts.filter(contact => contact.id !== id);
+        this.helper.toggleEmpty();
       });
 
       request.send();
@@ -152,19 +158,19 @@ const  App = (function() {
 
       request.addEventListener('load', e => {
         let contact = JSON.parse(request.response);
-        contact = this.helpers.transformTags(contact);
-        this.helpers.updateContacts(contact);
-        this.helpers.findTarget(id).replaceWith(templates.contact(contact));
-        this.helpers.showContacts();
+        contact = this.helper.transformTags(contact);
+        this.helper.updateContacts(contact);
+        this.helper.findTarget(id).replaceWith(this.helper.templates.contact(contact));
+        this.helper.showContacts();
         $form.get(0).reset();
-        editMode = false;
+        this.helper.editMode = false;
       });
 
       request.send(JSON.stringify(data));
     },
 
     init: function(helperObj) {
-      this.helpers = helperObj;
+      this.helper = helperObj;
       return this;
     },
   };
@@ -180,15 +186,15 @@ const  App = (function() {
     cancelForm: function(e) {
       e.preventDefault();
 
-      this.helpers.showContacts();
+      this.helper.showContacts();
       $form.get(0).reset();
     },
 
     createContact: function(e) {
       e.preventDefault();
 
-      let data = this.helpers.getDataObj($form);
-      if (!this.helpers.validTags(data.tags)) {
+      let data = this.helper.getDataObj($form);
+      if (!this.helper.validTags(data.tags)) {
         alert('Duplicate tags are not allowed');
         return;
       }
@@ -209,10 +215,10 @@ const  App = (function() {
 
     editContact: function(e) {
       let id = +$(e.target).parent().attr('data-id');
-      let contactDetails = this.helpers.getContact(id);
+      let contactDetails = this.helper.getContact(id);
 
-      editMode = true;
-      this.helpers.populateForm(contactDetails);
+      this.helper.editMode = true;
+      this.helper.populateForm(contactDetails);
       this.showForm(e);
       $form.find('[data-mode=edit]').val(id);
     },
@@ -221,9 +227,9 @@ const  App = (function() {
       e.preventDefault();
       let tag = e.target.textContent;
 
-      contacts.forEach(contact => {
+      this.helper.contacts.forEach(contact => {
         if(!contact.tags.includes(tag)) {
-          this.helpers.findTarget(contact.id).hide();
+          this.helper.findTarget(contact.id).hide();
         }
       });
 
@@ -240,12 +246,12 @@ const  App = (function() {
     filterSearch: function(e) {
       let query = e.target.value.toLowerCase();
 
-      contacts.forEach(contact => {
+      this.helper.contacts.forEach(contact => {
         let name = contact.full_name.toLowerCase();
         if (!name.startsWith(query)) {
-          this.helpers.findTarget(contact.id).hide();
+          this.helper.findTarget(contact.id).hide();
         } else {
-          this.helpers.findTarget(contact.id).show();
+          this.helper.findTarget(contact.id).show();
         }
       });
     },
@@ -262,10 +268,10 @@ const  App = (function() {
     },
 
     init: function() {
-      this.helpers = Helpers.init();
-      this.requests = Requests.init(this.helpers);
+      this.helper = Helper.init();
+      this.requests = Requests.init(this.helper);
       
-      this.filterSearch = this.helpers.debounce(this.filterSearch.bind(this), 250);
+      this.filterSearch = this.helper.debounce(this.filterSearch.bind(this), 250);
       this.requests.loadContacts();
       this.bindEvents();
     }
