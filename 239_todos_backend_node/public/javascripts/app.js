@@ -51,6 +51,7 @@ const App = (function() {
       this.$form = this.get('form');
       this.$list = this.get('#todo-list');
       this.$nav = this.get('nav');
+      this.$heading = this.get('#heading');
 
       this.cacheTemplates();
       this.registerPartials();
@@ -92,11 +93,6 @@ const App = (function() {
 
     filterCompleted: function() {
       this.completedTodos = this.allTodos.filter(todo => todo.completed);
-    },
-
-    buildCompList: function() {
-      let compDatesList = {};
-
     },
 
     buildList:  function(todos) {
@@ -182,17 +178,17 @@ const App = (function() {
       this.collection.splice(index, 1);
     },
 
-    updateCollection: function(updated) {
-      this.collection.forEach((todo, idx) => {
+    updateCollection: function(collection, updated) {
+      collection.forEach((todo, idx) => {
         if(todo.id === updated.id) {
-          this.collection[idx] = updated;
+          collection[idx] = updated;
         }
       });
     },
 
-    sortList: function() {
-      this.collection.sort((todo1, todo2) => todo1.id - todo2.id);
-      this.collection.sort((todo1, todo2) => {
+    sortList: function(collection) {
+      collection.sort((todo1, todo2) => todo1.id - todo2.id);
+      collection.sort((todo1, todo2) => {
         if (!todo1.completed && todo2.completed) {
           return -1;
         } else if (!todo2.completed && todo1.completed) {
@@ -203,6 +199,10 @@ const App = (function() {
       });
     },
 
+    clearIncomplete: function(collection) {
+      return collection.filter(todo => todo.completed);
+    },
+
     loadAll: function() {
       let req = new XMLHttpRequest();
       req.open('GET', '/api/todos');
@@ -210,7 +210,8 @@ const App = (function() {
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
         this.collection = res;
-        this.sortList();
+        this.sortList(this.collection);
+        this.activeList = this.collection;
         this.nav.allTodos = this.collection;
         this.nav.loadBoth();
         this.ui.$currentCount.text(this.collection.length);
@@ -220,11 +221,59 @@ const App = (function() {
       req.send();
     },
 
-    loadCompleted: function() {
-      let completedTodos = this.collection.filter(todo => todo.completed);
-      this.ui.$list.html(this.ui.templates.todos({todos: completedTodos}));
+    renderCompleted: function() {
+      this.inCompleteMode = true;
+      this.activeList = [];
+      this.collection.forEach(todo => {
+        if (todo.completed) {
+          this.activeList.push(todo);
+        }
+      });
+      
+      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
       this.ui.$heading.text('Completed');
-      this.ui.$currentCount.text(completedTodos.length);
+      this.ui.$currentCount.text(this.activeList.length);
+    },
+
+    renderAll: function() {
+      this.inCompleteMode = false;
+      this.activeList  = this.collection;
+      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
+      this.ui.$heading.text('All Todos');
+      this.ui.$currentCount.text(this.activeList.length);
+    },
+
+    renderMonthlyList: function(month, year) {
+      this.inCompleteMode = false;
+
+      let date = `${month}/${year}`;
+
+      if (month === '' || year === '') {
+        date = 'No Due Date';
+      }
+
+      let lists = this.nav.buildList(this.collection);
+      this.activeList  = lists[date];
+
+      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
+      this.ui.$heading.text(date);
+      this.ui.$currentCount.text(this.activeList.length);
+    },
+
+    renderCompletedMonthlyList: function(month, year) {
+      this.inCompleteMode = true;
+      let date = `${month}/${year}`;
+
+      if (month === '' || year === '') {
+        date = 'No Due Date';
+      }
+
+      let lists = this.nav.buildList(this.nav.completedTodos);
+      this.activeList  = lists[date];
+
+      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
+      this.ui.$heading.text(date);
+      this.ui.$currentCount.text(this.activeList.length);
     },
 
     add: function(json) {
@@ -234,10 +283,11 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
-        this.ui.$list.append(this.ui.templates.todo(res));
         this.ui.hideModal();
         this.collection.push(res);
+        this.sortList(this.collection);
         this.nav.loadAll();
+        this.renderAll();
       });
 
       req.send(json);
@@ -252,6 +302,7 @@ const App = (function() {
           this.ui.get('li[data-id=' + id + ']').remove();
           this.removeFromCollection(id);
           this.nav.loadBoth();
+          this.ui.$currentCount.text(this.activeList.length);
         }
       });
 
@@ -265,10 +316,13 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
-        this.updateCollection(res);
-        this.sortList();
+        this.updateCollection(this.collection, res);
+        this.updateCollection(this.activeList, res);
+        this.sortList(this.activeList);
         this.nav.loadBoth();
-        this.ui.$list.html(this.ui.templates.todos({todos: this.collection}));
+        if (this.inCompleteMode && !state) { this.activeList = this.clearIncomplete(this.activeList); } 
+        this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
+        this.ui.$currentCount.text(this.activeList.length);
         this.ui.hideModal();
       });
 
@@ -283,9 +337,11 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
-        this.updateCollection(res);
-        this.sortList();
-        this.ui.$list.html(this.ui.templates.todos({todos: this.collection}));
+        this.updateCollection(this.collection, res);
+        this.updateCollection(this.activeList, res);
+        this.sortList(this.activeList);
+        this.nav.loadBoth();
+        this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
         this.ui.hideModal();
       });
 
@@ -295,6 +351,8 @@ const App = (function() {
     init: function(ui, nav) {
       this.ui = ui;
       this.nav = nav;
+      this.activeList = null;
+      this.inCompleteMode = false;
       this.loadAll();
       return this;
     }
@@ -329,6 +387,7 @@ const App = (function() {
     checkHandler: function(e) {
       let state = e.target.checked;
       let id = this.helper.getItemId($(e.target));
+      
 
       this.todos.updateState(state, id);
     },
@@ -354,10 +413,45 @@ const App = (function() {
       this.ui.editMode = true;
     },
 
-    renderCompleted: function(e) {
+    clickCompHandler: function(e) {
+      e.preventDefault();
+      $('.active').removeClass('active');
+      $(e.target).parent().addClass('active');
+
+      this.todos.renderCompleted();
+    },
+
+    clickAllHandler: function(e) {
+      e.preventDefault();
+      $('.active').removeClass('active');
+      $(e.target).parent().addClass('active');
+
+      this.todos.renderAll();
+    },
+
+    clickAllMonthly: function(e) {
       e.preventDefault();
 
-      this.todos.loadCompleted();
+      $('.active').removeClass('active');
+
+      let $list = $(e.target).closest('li');
+      $list.addClass('active');
+      let month = $list.attr('data-month');
+      let year = $list.attr('data-year');
+
+      this.todos.renderMonthlyList(month, year);
+    },
+
+    clickCompletedMonthly: function(e) {
+      e.preventDefault();
+      $('.active').removeClass('active');
+
+      let $list = $(e.target).closest('li');
+      $list.addClass('active');
+      let month = $list.attr('data-month');
+      let year = $list.attr('data-year');
+
+      this.todos.renderCompletedMonthlyList(month, year);
     },
 
     bindEvents: function() {
@@ -369,8 +463,10 @@ const App = (function() {
       this.ui.$list.on('input', 'input[type=checkbox]', this.checkHandler.bind(this));
       this.ui.$list.on('click', '.edit-todo', this.editHandler.bind(this));
       this.ui.$modal.on('click', '.modal-layer', this.ui.hideModal.bind(this.ui));
-      this.ui.$nav.on('click', '.completed-todos', this.renderCompleted.bind(this));
-      //this.ui.$nav.on('click', '.all-todos', this.renderAll.bind(this));
+      this.ui.$nav.on('click', '.completed-todos', this.clickCompHandler.bind(this));
+      this.ui.$nav.on('click', '.all-todos', this.clickAllHandler.bind(this));
+      this.ui.$nav.on('click', '.all-months a', this.clickAllMonthly.bind(this));
+      this.ui.$nav.on('click', '.completed-months a', this.clickCompletedMonthly.bind(this));
     },
 
     init: function() {
