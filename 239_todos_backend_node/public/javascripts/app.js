@@ -41,6 +41,17 @@ const App = (function() {
       $checkbox.trigger('input');
     },
 
+    toggleActive: function($ele, className) {
+      $(`.${className}`).removeClass(className);
+      $ele.addClass(className);
+    },
+
+    renderList: function(collection, heading, count) {
+      this.$heading.text(heading);
+      this.$currentCount.text(count);
+      this.$list.html(this.templates.todos({todos: collection}));
+    },
+
     init: function() {
       this.templates = {};
       this.$currentCount = this.get('.current-count');
@@ -74,11 +85,16 @@ const App = (function() {
       return +$ele.closest('li').attr('data-id');
     },
 
+    getFullYear: function(year) {
+      if (year === '') return '';
+      return '20' + year;
+    },
+
     populateForm: function($form, todo) {
       $form.find('#title').val(todo.title);
       $form.find('#day').val(todo.day);
       $form.find('#month').val(todo.month);
-      $form.find('#year').val(todo.year);
+      $form.find('#year').val(this.getFullYear(todo.year));
       $form.find('#description').val(todo.description);
     },
 
@@ -166,16 +182,20 @@ const App = (function() {
       return this.collection.filter(todo => todo.id === id)[0];
     },
 
-    removeFrom: function(collection, id) {
+    removeFromCollection: function(id) {
       let index;
 
-      collection.forEach((todo, idx) => {
+      this.collection.forEach((todo, idx) => {
         if (todo.id === id) {
           index = idx;
         }
       });
 
-      collection.splice(index, 1);
+      this.collection.splice(index, 1);
+    },
+
+    removeFromActive: function(id) {
+      this.activeList = this.activeList.filter(todo => todo.id !== id);
     },
 
     updateCollection: function(collection, updated) {
@@ -203,19 +223,29 @@ const App = (function() {
       return collection.filter(todo => todo.completed);
     },
 
+    modifyYear: function(todo) {
+      todo.year = todo.year.slice(-2);
+    },
+
+    modifyYears: function(collection) {
+      collection.forEach(todo => {
+        this.modifyYear(todo);
+      });
+    },
+
     loadAll: function() {
       let req = new XMLHttpRequest();
       req.open('GET', '/api/todos');
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
+        this.modifyYears(res);
         this.collection = res;
         this.sortList(this.collection);
         this.activeList = this.collection;
         this.nav.allTodos = this.collection;
         this.nav.loadBoth();
-        this.ui.$currentCount.text(this.collection.length);
-        this.ui.$list.html(this.ui.templates.todos({todos: this.collection}));
+        this.ui.renderList(this.activeList, 'All Todos', this.activeList.length);
       });
 
       req.send();
@@ -223,57 +253,44 @@ const App = (function() {
 
     renderCompleted: function() {
       this.inCompleteMode = true;
+
       this.activeList = [];
       this.collection.forEach(todo => {
         if (todo.completed) {
           this.activeList.push(todo);
         }
       });
-      
-      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
-      this.ui.$heading.text('Completed');
-      this.ui.$currentCount.text(this.activeList.length);
+
+      this.ui.renderList(this.activeList, 'Completed', this.activeList.length);
     },
 
     renderAll: function() {
       this.inCompleteMode = false;
       this.activeList  = this.collection;
-      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
-      this.ui.$heading.text('All Todos');
-      this.ui.$currentCount.text(this.activeList.length);
+      this.sortList(this.activeList);
+
+      this.ui.renderList(this.activeList, 'All Todos', this.activeList.length);
     },
 
-    renderMonthlyList: function(month, year) {
-      this.inCompleteMode = false;
-
+    renderMonthlyList: function(month, year, inComplete) {
+      this.inCompleteMode = !!inComplete;
       let date = `${month}/${year}`;
 
       if (month === '' || year === '') {
         date = 'No Due Date';
       }
 
-      let lists = this.nav.buildList(this.collection);
-      this.activeList  = lists[date];
+      let lists;
 
-      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
-      this.ui.$heading.text(date);
-      this.ui.$currentCount.text(this.activeList.length);
-    },
-
-    renderCompletedMonthlyList: function(month, year) {
-      this.inCompleteMode = true;
-      let date = `${month}/${year}`;
-
-      if (month === '' || year === '') {
-        date = 'No Due Date';
+      if (this.inCompleteMode) {
+        lists = this.nav.buildList(this.nav.completedTodos);
+      } else {
+        lists = this.nav.buildList(this.collection);
       }
 
-      let lists = this.nav.buildList(this.nav.completedTodos);
       this.activeList  = lists[date];
-
-      this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
-      this.ui.$heading.text(date);
-      this.ui.$currentCount.text(this.activeList.length);
+      this.sortList(this.activeList);
+      this.ui.renderList(this.activeList, date, this.activeList.length);
     },
 
     add: function(json) {
@@ -283,6 +300,7 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
+        this.modifyYear(res);
         this.ui.hideModal();
         this.collection.push(res);
         this.sortList(this.collection);
@@ -300,8 +318,8 @@ const App = (function() {
       req.addEventListener('load', () => {
         if (req.status === 204) {
           this.ui.get('li[data-id=' + id + ']').remove();
-          this.removeFrom(this.collection, id);
-          this.removeFrom(this.activeList, id);
+          this.removeFromCollection(id);
+          this.removeFromActive(id);
           this.nav.loadBoth();
           this.ui.$currentCount.text(this.activeList.length);
         }
@@ -317,6 +335,7 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
+        this.modifyYear(res);
         this.updateCollection(this.collection, res);
         this.updateCollection(this.activeList, res);
         this.sortList(this.activeList);
@@ -338,6 +357,7 @@ const App = (function() {
 
       req.addEventListener('load', () => {
         let res = JSON.parse(req.response);
+        this.modifyYear(res);
         this.updateCollection(this.collection, res);
         this.updateCollection(this.activeList, res);
         this.sortList(this.activeList);
@@ -414,45 +434,40 @@ const App = (function() {
       this.ui.editMode = true;
     },
 
-    clickCompHandler: function(e) {
+    clickCompletedHandler: function(e) {
       e.preventDefault();
-      $('.active').removeClass('active');
-      $(e.target).parent().addClass('active');
 
+      this.ui.toggleActive($(e.target).parent(), 'active');
       this.todos.renderCompleted();
     },
 
     clickAllHandler: function(e) {
       e.preventDefault();
-      $('.active').removeClass('active');
-      $(e.target).parent().addClass('active');
 
+      this.ui.toggleActive($(e.target).parent(), 'active');
       this.todos.renderAll();
     },
 
     clickAllMonthly: function(e) {
       e.preventDefault();
 
-      $('.active').removeClass('active');
-
-      let $list = $(e.target).closest('li');
-      $list.addClass('active');
+      let $list = $(e.target).parent();
       let month = $list.attr('data-month');
       let year = $list.attr('data-year');
 
+      this.ui.toggleActive($list, 'active');
       this.todos.renderMonthlyList(month, year);
     },
 
     clickCompletedMonthly: function(e) {
       e.preventDefault();
-      $('.active').removeClass('active');
 
-      let $list = $(e.target).closest('li');
-      $list.addClass('active');
+      let $list = $(e.target).parent();
       let month = $list.attr('data-month');
       let year = $list.attr('data-year');
 
-      this.todos.renderCompletedMonthlyList(month, year);
+      this.ui.toggleActive($list, 'active');
+      this.todos.renderMonthlyList(month, year, true);
     },
 
     bindEvents: function() {
@@ -464,7 +479,7 @@ const App = (function() {
       this.ui.$list.on('input', 'input[type=checkbox]', this.checkHandler.bind(this));
       this.ui.$list.on('click', '.edit-todo', this.editHandler.bind(this));
       this.ui.$modal.on('click', '.modal-layer', this.ui.hideModal.bind(this.ui));
-      this.ui.$nav.on('click', '.completed-todos', this.clickCompHandler.bind(this));
+      this.ui.$nav.on('click', '.completed-todos', this.clickCompletedHandler.bind(this));
       this.ui.$nav.on('click', '.all-todos', this.clickAllHandler.bind(this));
       this.ui.$nav.on('click', '.all-months a', this.clickAllMonthly.bind(this));
       this.ui.$nav.on('click', '.completed-months a', this.clickCompletedMonthly.bind(this));
