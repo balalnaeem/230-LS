@@ -166,16 +166,16 @@ const App = (function() {
       return this.collection.filter(todo => todo.id === id)[0];
     },
 
-    removeFromCollection: function(id) {
+    removeFrom: function(collection, id) {
       let index;
 
-      this.collection.forEach((todo, idx) => {
+      collection.forEach((todo, idx) => {
         if (todo.id === id) {
           index = idx;
         }
       });
 
-      this.collection.splice(index, 1);
+      collection.splice(index, 1);
     },
 
     updateCollection: function(collection, updated) {
@@ -300,7 +300,8 @@ const App = (function() {
       req.addEventListener('load', () => {
         if (req.status === 204) {
           this.ui.get('li[data-id=' + id + ']').remove();
-          this.removeFromCollection(id);
+          this.removeFrom(this.collection, id);
+          this.removeFrom(this.activeList, id);
           this.nav.loadBoth();
           this.ui.$currentCount.text(this.activeList.length);
         }
