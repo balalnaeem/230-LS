@@ -151,8 +151,14 @@ const App = (function() {
       let list = this.buildList(this.allTodos);
       let data = this.buildForTempl(list);
       let $navList = this.ui.$nav.find('.all-months');
+      let month  = $navList.find('li.active').attr('data-month');
+      let year  = $navList.find('li.active').attr('data-year');
+
       this.renderNav(data, $navList);
       this.ui.$allCount.text(this.allTodos.length);
+      
+      let $activeLi = $navList.find(`li[data-month="${month}"][data-year="${year}"]`);
+      $activeLi.addClass('active');
     },
 
     loadCompleted: function() {
@@ -160,8 +166,14 @@ const App = (function() {
       let list = this.buildList(this.completedTodos);
       let data = this.buildForTempl(list);
       let $navList = this.ui.$nav.find('.completed-months');
+      let month  = $navList.find('li.active').attr('data-month');
+      let year  = $navList.find('li.active').attr('data-year');
+
       this.renderNav(data, $navList);
       this.ui.$compCount.text(this.completedTodos.length);
+
+      let $activeLi = $navList.find(`li[data-month="${month}"][data-year="${year}"]`);
+      $activeLi.addClass('active');
     },
 
     loadBoth: function() {
@@ -233,6 +245,16 @@ const App = (function() {
       });
     },
 
+    getTodoDate: function(month, year) {
+      let date = `${month}/${year}`;
+
+      if (month === '' || year === '') {
+        date = 'No Due Date';
+      }
+
+      return date;
+    },
+
     loadAll: function() {
       let req = new XMLHttpRequest();
       req.open('GET', '/api/todos');
@@ -274,12 +296,7 @@ const App = (function() {
 
     renderMonthlyList: function(month, year, inComplete) {
       this.inCompleteMode = !!inComplete;
-      let date = `${month}/${year}`;
-
-      if (month === '' || year === '') {
-        date = 'No Due Date';
-      }
-
+      let date = this.getTodoDate(month, year);
       let lists;
 
       if (this.inCompleteMode) {
@@ -288,7 +305,7 @@ const App = (function() {
         lists = this.nav.buildList(this.collection);
       }
 
-      this.activeList  = lists[date];
+      this.activeList  = lists[date] || [];
       this.sortList(this.activeList);
       this.ui.renderList(this.activeList, date, this.activeList.length);
     },
@@ -306,6 +323,7 @@ const App = (function() {
         this.sortList(this.collection);
         this.nav.loadAll();
         this.renderAll();
+        this.ui.toggleActive(this.ui.$nav.children().first(), 'active');
       });
 
       req.send(json);
@@ -351,6 +369,8 @@ const App = (function() {
 
     updateTodo: function(data) {
       let id = +this.ui.$form.find('[data-mode="edit"]').val();
+      let todo = this.getTodo(id);
+
       let req = new XMLHttpRequest();
       req.open('PUT', '/api/todos/' + id);
       req.setRequestHeader('Content-Type', 'application/json');
@@ -362,7 +382,7 @@ const App = (function() {
         this.updateCollection(this.activeList, res);
         this.sortList(this.activeList);
         this.nav.loadBoth();
-        this.ui.$list.html(this.ui.templates.todos({todos: this.activeList}));
+        this.renderMonthlyList(todo.month, todo.year, todo.completed);
         this.ui.hideModal();
       });
 
