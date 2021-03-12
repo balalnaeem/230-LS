@@ -8,5 +8,8 @@
   "dependencies": {
     "express": "~4.16.0",
     "sqlite3": "^4.0.2"
+  },
+  "engines": {
+    "node": "13.1.0"
   }
 }
